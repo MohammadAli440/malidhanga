@@ -1,27 +1,25 @@
-import React from "react"
+import React, { ReactNode } from "react"
 import { motion } from "framer-motion"
-import type { HTMLMotionProps } from "framer-motion"
 
 const DURATION = 0.25
 const STAGGER = 0.025
 
-type FlipLinkProps = HTMLMotionProps<'a'> & {
+interface FlipLinkProps {
   children: string
   href: string
 }
 
-const FlipLink: React.FC<FlipLinkProps> = ({ children, href, className, style, ...rest }) => {
+const FlipLink: React.FC<FlipLinkProps> = ({ children, href }) => {
   return (
     <motion.a
       initial="initial"
       whileHover="hovered"
+      target="_blank"
       href={href}
-      className={`relative block overflow-hidden whitespace-nowrap text-4xl font-semibold uppercase dark:text-white/90 sm:text-7xl md:text-8xl ${className ?? ""}`}
+      className="relative block overflow-hidden whitespace-nowrap text-4xl font-semibold uppercase dark:text-white/90 sm:text-7xl md:text-8xl "
       style={{
         lineHeight: 0.75,
-        ...style,
       }}
-      {...rest}
     >
       <div>
         {children.split("").map((l, i) => (

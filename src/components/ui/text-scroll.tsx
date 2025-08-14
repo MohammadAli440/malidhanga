@@ -1,68 +1,118 @@
-'use client'
-import React, { useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
+"use client"
+
+import React, { useEffect, useRef, useState } from "react"
+import {
+  motion,
+  useAnimationFrame,
+  useMotionValue,
+  useScroll,
+  useSpring,
+  useTransform,
+  useVelocity,
+} from "framer-motion"
+
+import { cn } from "@/lib/utils"
 
 interface TextScrollProps {
-  text: string;
-  className?: string;
-  speed?: number;
+  text: string
+  default_velocity?: number
+  className?: string
 }
 
-const TextScroll: React.FC<TextScrollProps> = ({ 
-  text, 
-  className = "", 
-  speed = 1 
+interface ParallaxProps {
+  children: string
+  baseVelocity: number
+  className?: string
+}
+
+export const wrap = (min: number, max: number, v: number) => {
+  const rangeSize = max - min
+  return ((((v - min) % rangeSize) + rangeSize) % rangeSize) + min
+}
+
+export const TextScroll: React.FC<TextScrollProps> = ({
+  text,
+  default_velocity = 5,
+  className,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
+  const ParallaxText: React.FC<ParallaxProps> = ({
+    children,
+    baseVelocity = 100,
+    className,
+  }) => {
+    const baseX = useMotionValue(0)
+    const { scrollY } = useScroll()
+    const scrollVelocity = useVelocity(scrollY)
+    const smoothVelocity = useSpring(scrollVelocity, {
+      damping: 50,
+      stiffness: 400,
+    })
 
-  useEffect(() => {
-    if (!containerRef.current || !textRef.current) return;
+    const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 5], {
+      clamp: false,
+    })
 
-    const container = containerRef.current;
-    const textElement = textRef.current;
-    
-    // Clone the text for seamless loop
-    const clone = textElement.cloneNode(true) as HTMLElement;
-    container.appendChild(clone);
+    const [repetitions, setRepetitions] = useState(1)
+    const containerRef = useRef<HTMLDivElement>(null)
+    const textRef = useRef<HTMLSpanElement>(null)
 
-    // Get the width of the text
-    const textWidth = textElement.offsetWidth;
-    
-    // Set initial position
-    gsap.set(textElement, { x: 0 });
-    gsap.set(clone, { x: textWidth });
+    useEffect(() => {
+      const calculateRepetitions = () => {
+        if (containerRef.current && textRef.current) {
+          const containerWidth = containerRef.current.offsetWidth
+          const textWidth = textRef.current.offsetWidth
+          const newRepetitions = Math.ceil(containerWidth / textWidth) + 2
+          setRepetitions(newRepetitions)
+        }
+      }
 
-    // Create the scrolling animation
-    const tl = gsap.timeline({ repeat: -1 });
-    
-    tl.to([textElement, clone], {
-      x: -textWidth,
-      duration: textWidth / (50 * speed), // Adjust speed based on text width
-      ease: "none"
-    });
+      calculateRepetitions()
 
-    // Cleanup function
-    return () => {
-      tl.kill();
-    };
-  }, [text, speed]);
+      window.addEventListener("resize", calculateRepetitions)
+      return () => window.removeEventListener("resize", calculateRepetitions)
+    }, [children])
+
+    const x = useTransform(baseX, (v) => `${wrap(-100 / repetitions, 0, v)}%`)
+
+    const directionFactor = useRef<number>(1)
+    useAnimationFrame((t, delta) => {
+      let moveBy = directionFactor.current * baseVelocity * (delta / 1000)
+
+      if (velocityFactor.get() < 0) {
+        directionFactor.current = -1
+      } else if (velocityFactor.get() > 0) {
+        directionFactor.current = 1
+      }
+
+      moveBy += directionFactor.current * moveBy * velocityFactor.get()
+
+      baseX.set(baseX.get() + moveBy)
+    })
+
+    return (
+      <div
+        className="w-full overflow-hidden whitespace-nowrap"
+        ref={containerRef}
+      >
+        <motion.div className={cn("inline-block", className)} style={{ x }}>
+          {Array.from({ length: repetitions }).map((_, i) => (
+            <span key={i} ref={i === 0 ? textRef : null}>
+              {children}{" "}
+            </span>
+          ))}
+        </motion.div>
+      </div>
+    )
+  }
 
   return (
-    <div 
-      ref={containerRef} 
-      className={`overflow-hidden whitespace-nowrap ${className}`}
-      style={{ position: 'relative' }}
-    >
-      <div 
-        ref={textRef} 
-        className="inline-block"
-        style={{ whiteSpace: 'nowrap' }}
-      >
+    <section className="relative w-full">
+      <ParallaxText baseVelocity={default_velocity} className={className}>
         {text}
-      </div>
-    </div>
-  );
-};
-
-export default TextScroll;
+      </ParallaxText>
+      <ParallaxText baseVelocity={-default_velocity} className={className}>
+        {text}
+      </ParallaxText>
+    </section>
+  )
+}

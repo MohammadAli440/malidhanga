@@ -1,5 +1,5 @@
-"use client"
-import React, { useState } from 'react'
+"use client";
+import React, { useState } from "react";
 
 const desktopImages = [
   "img0.png", // featured
@@ -10,20 +10,11 @@ const desktopImages = [
 ];
 
 const mobileImages = [
-  "img-2.png",
-  "img-1.png",
   "img0.png",
-  "img1.png",
-  "img2.png",
   "img3.png",
-  "img6.png",
-  "img4.png",
-  "img5.png",
+  "img2.png",
   "img7.png",
-  "img11.png",
   "img8.png",
-  "img9.png",
-  "img10.png",
 ];
 
 const Design = () => {
@@ -32,8 +23,6 @@ const Design = () => {
 
   // For mobile, track which image is expanded (for future, but not required by prompt)
   // const [mobileExpandedIdx, setMobileExpandedIdx] = useState(null);
-
-
 
   return (
     <section
@@ -57,14 +46,12 @@ const Design = () => {
           return (
             <div
               key={idx}
-              className={
-                [
-                  "relative overflow-hidden rounded-[24px] flex min-w-[170px] cursor-pointer items-center justify-center transition-all duration-700 ease-in-out",
-                  isExpanded
-                    ? "h-[630px] flex-[3.5] opacity-100 z-10"
-                    : "h-[200px] lg:h-[630px] lg:flex-[0.5] opacity-40 z-0",
-                ].join(" ")
-              }
+              className={[
+                "relative overflow-hidden rounded-[24px] flex min-w-[170px] cursor-pointer items-center justify-center transition-all duration-700 ease-in-out",
+                isExpanded
+                  ? "h-[630px] flex-[3.5] opacity-100 z-10"
+                  : "h-[200px] lg:h-[630px] lg:flex-[0.5] opacity-40 z-0",
+              ].join(" ")}
               onClick={() => setExpandedIdx(idx)}
               tabIndex={0}
               role="button"
@@ -76,21 +63,21 @@ const Design = () => {
                   src={`/imgMe/${src}`}
                   alt="ui"
                 />
-                <div className={
-                  [
+                <div
+                  className={[
                     "flex-center absolute size-full transition-all duration-700 ease-in-out",
                     isExpanded
                       ? "opacity-100 hover:opacity-100"
-                      : "opacity-0 hover:opacity-100"
-                  ].join(" ")
-                }>
+                      : "opacity-0 hover:opacity-100",
+                  ].join(" ")}
+                >
                   <div className="absolute size-full bg-black opacity-20 transition-all ease-in-out"></div>
-                  <h2 className={
-                    [
+                  <h2
+                    className={[
                       "h3-light flex-center absolute z-10 gap-3 rounded-full bg-[#FFFFFFDD] px-5 py-2 !text-black backdrop-blur-3xl transition-all delay-500 ease-in-out",
-                      isExpanded ? "opacity-100" : "opacity-0"
-                    ].join(" ")
-                  }>
+                      isExpanded ? "opacity-100" : "opacity-0",
+                    ].join(" ")}
+                  >
                     <img
                       src="/social/dribbble.svg"
                       className="drop-shadow-lg"
@@ -103,7 +90,6 @@ const Design = () => {
             </div>
           );
         })}
-
       </div>
 
       {/* Mobile View */}
@@ -118,7 +104,7 @@ const Design = () => {
         ))}
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Design
+export default Design;

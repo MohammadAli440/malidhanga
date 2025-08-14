@@ -2,6 +2,7 @@ import Navbar from "@/components/Layout/Navbar";
 import "@/styles/globals.css";
 import "@/styles/Custom.css";
 import { ThemeProvider } from "next-themes";
+import Herobtn from "@/components/Layout/Header";
 
 export default function RootLayout({
   children,
@@ -24,6 +25,7 @@ export default function RootLayout({
           enableSystem
         >
           <div className="min-h-screen flex flex-col">
+            <Herobtn/>
             <Navbar/>
             <main className="flex-1">{children}</main>
           </div>
